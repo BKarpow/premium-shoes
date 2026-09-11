@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
 
 use App\Http\Controllers\ProductController;
 
@@ -35,6 +36,10 @@ Route::middleware('auth')->group(function () {
 });
 
 
+// Публічна сторінка товару за його slug
+Route::get('/product/{slug}', [ProductController::class, 'show'])
+->name('products.show');
+
 // Авторизовані користувачі з роллю адміна (або поки просто auth)
 Route::middleware(['auth', 'role:admin|manager'])->prefix('admin')->name('admin.')->group(function () {
 
@@ -50,6 +55,10 @@ Route::middleware(['auth', 'role:admin|manager'])->prefix('admin')->name('admin.
     Route::resource('products', AdminProductController::class);
         Route::resource('categories', AdminCategoryController::class)->except(['show']);
         Route::resource('brands', AdminBrandController::class)->except(['show']);
+
+        Route::middleware('role:admin')->group(function () {
+                Route::resource('users', UserController::class);
+            });
 });
 
 require __DIR__.'/auth.php';

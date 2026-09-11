@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
-import {Head, useForm, Link } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
     categories: Array,
@@ -105,6 +106,7 @@ const submit = () => {
 <template>
 <!-- Встановлюємо заголовок вкладки браузера -->
     <Head title="Створення нового товару" />
+    <AdminLayout>
     <div class="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-8 font-sans">
         <div class="max-w-5xl mx-auto">
             <!-- Шапка -->
@@ -279,4 +281,5 @@ const submit = () => {
             </form>
         </div>
     </div>
+    </AdminLayout>
 </template>

@@ -84,14 +84,30 @@ class ProductController extends Controller
      * Картка конкретного товару
      */
     public function show(string $slug): Response
-    {
-        $product = Product::where('slug', $slug)
-            ->where('is_active', true)
-            ->with(['category', 'brand', 'images', 'variants.size'])
-            ->firstOrFail();
+        {
+            $product = Product::query()
+                ->where('slug', $slug)
+                ->where('is_active', true)
+                ->with([
+                    'category:id,name,slug',
+                    'brand:id,name,slug',
+                    'images' => fn($query) => $query->orderBy('sort_order'),
+                    'variants.size' => fn($query) => $query->orderBy('sort_order')
+                ])
+                ->firstOrFail();
 
-        return Inertia::render('Catalog/Show', [
-            'product' => $product,
-        ]);
-    }
+            // Схожі товари (з цієї ж категорії)
+            $relatedProducts = Product::query()
+                ->where('category_id', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->where('is_active', true)
+                ->with(['brand', 'images' => fn($q) => $q->where('is_main', true)])
+                ->limit(4)
+                ->get();
+
+            return Inertia::render('Product/Show', [
+                'product' => $product,
+                'similarProducts' => $relatedProducts,
+            ]);
+        }
 }

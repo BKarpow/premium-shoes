@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { Link, router, Head } from '@inertiajs/vue3';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
     products: Object, // Пагінований список товарів від Laravel
@@ -32,6 +33,7 @@ const deleteProduct = (id) => {
 <template>
 <!-- Встановлюємо заголовок вкладки браузера -->
     <Head title="Управління товарами" />
+    <AdminLayout>
     <div class="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-8 font-sans">
         <div class="max-w-7xl mx-auto space-y-6">
 
@@ -209,4 +211,5 @@ const deleteProduct = (id) => {
 
         </div>
     </div>
+    </AdminLayout>
 </template>

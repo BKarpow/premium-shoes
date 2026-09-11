@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm, Link, router, Head } from '@inertiajs/vue3';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
     product: Object,
@@ -57,6 +58,7 @@ const submit = () => {
 <template>
 <!-- Встановлюємо заголовок вкладки браузера -->
     <Head title="Редагування товару" />
+<AdminLayout>
     <div class="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-8 font-sans">
         <div class="max-w-5xl mx-auto">
             <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
@@ -165,4 +167,5 @@ const submit = () => {
             </form>
         </div>
     </div>
+</AdminLayout>
 </template>
