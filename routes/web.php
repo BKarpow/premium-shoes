@@ -36,7 +36,7 @@ Route::middleware('auth')->group(function () {
 
 
 // Авторизовані користувачі з роллю адміна (або поки просто auth)
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin|manager'])->prefix('admin')->name('admin.')->group(function () {
 
     // Дашборд
     Route::get('/', DashboardController::class)->name('dashboard');
