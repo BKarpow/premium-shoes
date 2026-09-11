@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { router, Link } from '@inertiajs/vue3'
+import { router, Link, Head } from '@inertiajs/vue3'
 import ProductCard from '@/Components/Catalog/ProductCard.vue'
 import FilterSidebar from '@/Components/Catalog/FilterSidebar.vue'
 import FilterModal from '@/Components/Catalog/FilterModal.vue'
@@ -77,6 +77,8 @@ watch([selectedCategory, sortBy], () => {
 </script>
 
 <template>
+<!-- Встановлюємо заголовок вкладки браузера -->
+    <Head title="Каталог Premium" />
   <div class="min-h-screen bg-neutral-950 text-neutral-100 font-sans antialiased py-6 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
 
