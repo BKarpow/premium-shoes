@@ -4,7 +4,8 @@ import { router, Link, Head } from '@inertiajs/vue3'
 import ProductCard from '@/Components/Catalog/ProductCard.vue'
 import FilterSidebar from '@/Components/Catalog/FilterSidebar.vue'
 import FilterModal from '@/Components/Catalog/FilterModal.vue'
-import SortSelect from '@/Components/Catalog/SortSelect.vue'
+import SortSelect from '@/Components/Catalog/SortSelect.vue';
+import MainLayout from '@/Layouts/MainLayout.vue';
 
 const props = defineProps({
   products: Object,
@@ -79,6 +80,7 @@ watch([selectedCategory, sortBy], () => {
 <template>
 <!-- Встановлюємо заголовок вкладки браузера -->
     <Head title="Каталог Premium" />
+    <MainLayout>
   <div class="min-h-screen bg-neutral-950 text-neutral-100 font-sans antialiased py-6 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
 
@@ -184,6 +186,7 @@ watch([selectedCategory, sortBy], () => {
 
     </div>
   </div>
+    </MainLayout>
 </template>
 
 <style scoped>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Auth\SocialiteController;
 
 use App\Http\Controllers\ProductController;
 
@@ -24,6 +25,13 @@ Route::get('/product/{slug}', [ProductController::class, 'show'])->name('catalog
 //         'phpVersion' => PHP_VERSION,
 //     ]);
 // });
+//
+
+
+Route::middleware('guest')->group(function () {
+    Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
+});
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
