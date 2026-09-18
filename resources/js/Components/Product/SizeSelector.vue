@@ -33,13 +33,13 @@ defineEmits(['update:modelValue'])
         ]"
       >
         <span>{{ variant.size?.value }}</span>
-        <span
+        <!-- <span
           v-if="variant.stock > 0 && variant.stock <= 3"
           :class="modelValue === variant.size_id ? 'text-neutral-950/80' : 'text-amber-500'"
           class="text-[9px] font-normal"
         >
           Залишилось {{ variant.stock }}
-        </span>
+        </span> -->
       </button>
     </div>
   </div>

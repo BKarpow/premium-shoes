@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Services\CartService;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -29,11 +30,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $cartService = app(CartService::class);
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
             ],
+                    'cart' => fn () => $cartService->getCartDetails(),
+                    'flash' => [
+                        'success' => fn () => $request->session()->get('success'),
+                        'error' => fn () => $request->session()->get('error'),
+                    ],
         ];
     }
 }

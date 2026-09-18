@@ -1,130 +1,123 @@
 <?php
 
-
 namespace App\Services;
 
+use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class CartService
 {
-    protected string $sessionKey = 'shopping_cart';
-
     /**
-     * Отримати вміст кошика
+     * Отримати або створити кошик у БД для поточного користувача/сесії
      */
-    public function getCart(): array
+    protected function getOrCreateCart(): Cart
     {
-        return Session::get($this->sessionKey, []);
+        if (Auth::check()) {
+            return Cart::firstOrCreate(['user_id' => Auth::id()]);
+        }
+
+        $sessionId = Session::getId();
+        return Cart::firstOrCreate(['session_id' => $sessionId]);
     }
 
     /**
-     * Отримати деталізований кошик із обчисленими сумами та даними про товари
+     * Додати варіант товару до кошика
+     */
+    public function add(int $variantId, int $quantity = 1): void
+    {
+        $cart = $this->getOrCreateCart();
+
+        $cartItem = $cart->items()->where('product_variant_id', $variantId)->first();
+
+        if ($cartItem) {
+            $cartItem->increment('quantity', $quantity);
+        } else {
+            $cart->items()->create([
+                'product_variant_id' => $variantId,
+                'quantity' => $quantity,
+            ]);
+        }
+    }
+
+    /**
+     * Отримати деталі кошика для фронтенду
      */
     public function getCartDetails(): array
     {
-        $cart = $this->getCart();
-        $items = [];
-        $total = 0;
+        $cart = $this->getOrCreateCart();
+
+        $items = $cart->items()
+            ->with(['variant.product.images', 'variant.size'])
+            ->get();
+
+        $cartItems = [];
+        $totalSum = 0;
         $totalCount = 0;
 
-        if (empty($cart)) {
-            return [
-                'items' => [],
-                'total' => 0,
-                'total_count' => 0,
+        foreach ($items as $item) {
+            $variant = $item->variant;
+            $product = $variant->product;
+
+            $price = $product->sale_price ?? $product->price;
+            $subtotal = $price * $item->quantity;
+
+            $totalSum += $subtotal;
+            $totalCount += $item->quantity;
+
+            $cartItems[] = [
+                'id' => $item->id,
+                'variant_id' => $variant->id,
+                'product_id' => $product->id,
+                'name' => $product->name ?? $product->title,
+                'slug' => $product->slug,
+                'image' => $product->primary_image_url ?? $product->images->first()?->path ?? '/images/placeholder.jpg',
+                'size' => $variant->size->name ?? $variant->size->value ?? null,
+                'price' => $price,
+                'quantity' => $item->quantity,
+                'subtotal' => $subtotal,
             ];
         }
 
-        $variantIds = array_keys($cart);
-        $variants = ProductVariant::with(['product', 'size', 'color'])
-            ->whereIn('id', $variantIds)
-            ->get()
-            ->keyBy('id');
-
-        foreach ($cart as $variantId => $quantity) {
-            if (isset($variants[$variantId])) {
-                $variant = $variants[$variantId];
-                $product = $variant->product;
-
-                $price = $product->sale_price ?? $product->price;
-                $subtotal = $price * $quantity;
-                $total += $subtotal;
-                $totalCount += $quantity;
-
-                $items[] = [
-                    'variant_id' => $variant->id,
-                    'product_id' => $product->id,
-                    'name' => $product->name,
-                    'slug' => $product->slug,
-                    'image' => $product->primary_image_url ?? '/images/placeholder.jpg',
-                    'size' => $variant->size->name ?? $variant->size->value ?? null,
-                    'color' => $variant->color->name ?? null,
-                    'price' => (float) $price,
-                    'quantity' => (int) $quantity,
-                    'max_stock' => (int) $variant->stock,
-                    'subtotal' => (float) $subtotal,
-                ];
-            }
-        }
-
         return [
-            'items' => $items,
-            'total' => (float) $total,
-            'total_count' => (int) $totalCount,
+            'items' => $cartItems,
+            'total' => $totalSum,
+            'count' => $totalCount,
         ];
     }
 
     /**
-     * Додати варіант товару в кошик
+     * Видалити позицію
      */
-    public function add(int $variantId, int $quantity = 1): void
+    public function remove(int $cartItemId): void
     {
-        $cart = $this->getCart();
-
-        if (isset($cart[$variantId])) {
-            $cart[$variantId] += $quantity;
-        } else {
-            $cart[$variantId] = $quantity;
-        }
-
-        Session::put($this->sessionKey, $cart);
+        $cart = $this->getOrCreateCart();
+        $cart->items()->where('id', $cartItemId)->delete();
     }
 
     /**
-     * Оновити кількість товару
+     * Оновити кількість
      */
-    public function update(int $variantId, int $quantity): void
+    public function updateQuantity(int $cartItemId, int $quantity): void
     {
-        $cart = $this->getCart();
-
         if ($quantity <= 0) {
-            unset($cart[$variantId]);
-        } else {
-            $cart[$variantId] = $quantity;
+            $this->remove($cartItemId);
+            return;
         }
 
-        Session::put($this->sessionKey, $cart);
+        $cart = $this->getOrCreateCart();
+        $cart->items()->where('id', $cartItemId)->update(['quantity' => $quantity]);
     }
 
-    /**
-     * Видалити варіант із кошика
-     */
-    public function remove(int $variantId): void
-    {
-        $cart = $this->getCart();
 
-        if (isset($cart[$variantId])) {
-            unset($cart[$variantId]);
-            Session::put($this->sessionKey, $cart);
+    /**
+         * Очистити весь кошик
+         */
+        public function clear(): void
+        {
+            $cart = $this->getOrCreateCart();
+            $cart->items()->delete();
         }
-    }
-
-    /**
-     * Очистити весь кошик
-     */
-    public function clear(): void
-    {
-        Session::forget($this->sessionKey);
-    }
 }

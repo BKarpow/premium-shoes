@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import ImageGallery from '@/Components/Product/ImageGallery.vue'
 import SizeSelector from '@/Components/Product/SizeSelector.vue'
@@ -19,7 +19,8 @@ const props = defineProps({
   }
 })
 
-const selectedSize = ref(null)
+const selectedSize = ref(null);
+const selectedVariantId = ref(null);
 const isCartOpen = ref(false)
 const isOneClickOpen = ref(false)
 
@@ -47,20 +48,25 @@ const showSizeWarning = () => {
 }
 
 const addToCart = () => {
-  // Якщо розмір не обрано — показуємо SweetAlert2
-  if (!selectedSize.value) {
-    showSizeWarning()
-    return
-  }
-
-  form.size_id = selectedSize.value.id
-  form.post('/cart/add', {
-    preserveScroll: true,
-    onSuccess: () => {
-      isCartOpen.value = true
+    if (!selectedSize.value) {
+        showSizeWarning();
+        return;
     }
-  })
-}
+
+    router.post(route('cart.add'), {
+        variant_id: props.product.variants.find(s => s.size_id === selectedSize.value)?.id ,
+        quantity: 1,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            console.log('Товар додано!');
+            isCartOpen.value = true;
+        },
+        onError: (errors) => {
+            console.error('Помилка додавання:', errors);
+        }
+    });
+};
 
 const openOneClick = () => {
   // Якщо розмір не обрано — показуємо SweetAlert2
