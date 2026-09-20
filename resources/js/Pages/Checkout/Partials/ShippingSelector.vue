@@ -33,8 +33,8 @@ const searchCities = async () => {
 
 const selectCity = async (city) => {
   props.form.city_ref = city.Ref;
-  props.form.city_name = city.Present;
-  citySearchQuery.value = city.Present;
+  props.form.city_name = city.Description;
+  citySearchQuery.value = city.Description;
   cities.value = [];
 
   props.form.warehouse_ref = '';
@@ -126,7 +126,7 @@ const selectWarehouse = (event) => {
             @click="selectCity(city)"
             class="px-4 py-2.5 text-sm hover:bg-slate-800/80 cursor-pointer text-slate-200 transition-colors"
           >
-            {{ city.Present }}
+            {{ city.Description }}
           </li>
         </ul>
       </div>

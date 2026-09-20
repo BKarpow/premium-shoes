@@ -8,8 +8,8 @@ const page = usePage();
 const roles = computed(() => page.props.auth.user?.roles || []);
 
 // Перевірка прав для відображення пунктів меню
-const isAdmin = computed(() => roles.value.includes('admin'));
-const isAdminOrManager = computed(() => roles.value.includes('admin') || roles.value.includes('manager'));
+const isAdmin = computed(() => roles.value[0].name == 'admin');
+const isAdminOrManager = computed(() => roles.value[0].name == 'admin' || roles.value[0].name == 'manager');
 </script>
 
 <template>
@@ -67,6 +67,19 @@ const isAdminOrManager = computed(() => roles.value.includes('admin') || roles.v
                         ]"
                     >
                         <span>➕</span> Додати товар
+                    </Link>
+
+                    <Link
+                        :href="route('admin.orders.index')"
+                        :class="[
+                            route().current('admin.orders.*')
+                                ? 'bg-amber-500/10 text-amber-400 border-amber-500/50'
+                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900',
+                            'flex items-center gap-3 px-4 py-2.5 rounded-xl border border-transparent font-medium text-sm transition-all duration-200'
+                        ]"
+                    >
+                        <span class="text-lg">📦</span>
+                        <span>Замовлення</span>
                     </Link>
 
                     <!-- Адміністрування користувачів (Тільки для Admin) -->

@@ -93,4 +93,17 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/np/warehouses', [CheckoutController::class, 'getWarehouses'])->name('np.warehouses');
 });
 
+
+use App\Http\Controllers\Admin\OrderController;
+
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    // ... інші роути адмінки (products, categories, тощо)
+
+    // Замовлення в адмінці
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+});
+
+
 require __DIR__.'/auth.php';

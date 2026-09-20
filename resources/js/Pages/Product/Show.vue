@@ -5,7 +5,8 @@ import Swal from 'sweetalert2'
 import ImageGallery from '@/Components/Product/ImageGallery.vue'
 import SizeSelector from '@/Components/Product/SizeSelector.vue'
 import OneClickModal from '@/Components/Cart/OneClickModal.vue'
-import CartDrawer from '@/Components/Cart/CartDrawer.vue'
+import CartDrawer from '@/Components/Cart/CartDrawer.vue';
+import MainLayout from '@/Layouts/MainLayout.vue';
 
 const props = defineProps({
   product: Object,
@@ -80,6 +81,7 @@ const openOneClick = () => {
 
 <template>
   <Head :title="product.title" />
+  <MainLayout>
 
   <div class="min-h-screen bg-neutral-950 text-neutral-100 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto space-y-12">
@@ -245,4 +247,5 @@ const openOneClick = () => {
       @close="isCartOpen = false"
     />
   </div>
+  </MainLayout>
 </template>
