@@ -23,7 +23,8 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh -T -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
+          # Використовуємо -q (quiet) для ssh, щоб приховати зайві системні повідомлення сервера
+          ssh -T -q -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
             set -e
 
             cd "$DEPLOY_PATH"
