@@ -2,7 +2,7 @@ name: Deploy Laravel Application
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ] # або master залежно від вашої основної гілки
 
 jobs:
   deploy:
@@ -12,18 +12,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Deploy to Server via SSH
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          # Встановлюємо sshpass для автоматичної авторизації за паролем
-          sudo apt-get update && sudo apt-get install -y sshpass
-
-          # Підключаємося та виконуємо команди деплою
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
             cd $DEPLOY_PATH
 
             # 1. Оновлення коду з репозиторію
@@ -32,16 +32,20 @@ jobs:
             # 2. Встановлення PHP-залежностей через Composer
             composer install --no-dev --optimize-autoloader --no-interaction
 
-            # 3. Очищення та кешування конфігурацій Laravel
+            # 3. Встановлення JS-залежностей та збірка фронтенду (Vite)
+            npm install
+            npm run build
+
+            # 4. Очищення та кешування конфігурацій Laravel
             php artisan config:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
 
-            # 4. Запуск міграцій бази даних
+            # 5. Запуск міграцій бази даних
             php artisan migrate --force
 
-            # 5. Виправлення прав доступу для папок storage та bootstrap/cache
-            chown -R www-data:www-data storage bootstrap/cache
+            # 6. Виправлення прав доступу для папок storage, bootstrap/cache та public/build
+            chown -R www-data:www-data storage bootstrap/cache public/build
             chmod -R 775 storage bootstrap/cache
           EOF
