@@ -2,7 +2,7 @@ name: Deploy Laravel Application
 
 on:
   push:
-    branches: [ main ] # або master залежно від вашої основної гілки
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -12,11 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: Deploy to Server via SSH
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -24,9 +19,10 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          # Використовуємо sshpass для автоматичної передачі пароля, якщо ключ не спрацює чи потрібен sudo-пароль
+          # Встановлюємо sshpass для автоматичної авторизації за паролем
           sudo apt-get update && sudo apt-get install -y sshpass
 
+          # Підключаємося та виконуємо команди деплою
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
             cd $DEPLOY_PATH
 
