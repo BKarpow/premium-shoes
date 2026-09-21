@@ -1,30 +1,16 @@
-name: Deploy Laravel Application
-
-on:
-  push:
-    branches: [ main ] # або master залежно від вашої основної гілки
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Deploy to Server via SSH
+- name: Deploy to Server via SSH
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
-            cd $DEPLOY_PATH
+          # Використовуємо -T щоб не вимагати псевдо-термінал і уникнути помилок tput
+          ssh -T -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
+            set -e # Зупинити виконання при першій же помилці
+            
+            # Переходимо в папку проєкту та перевіряємо чи вона існує
+            cd "${{ secrets.DEPLOY_PATH }}"
+            echo "Successfully changed directory to $(pwd)"
 
             # 1. Оновлення коду з репозиторію
             git pull origin main
