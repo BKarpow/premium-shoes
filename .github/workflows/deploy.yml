@@ -1,4 +1,4 @@
-- name: Deploy to Server via SSH
+name: Deploy to Server via SSH
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
