@@ -12,10 +12,10 @@ const cart = computed(() => page.props.cart || { total_count: 0 });
 
 // Перевірка, чи користувач є адміністратором або менеджером
 const isAdminOrManager = computed(() => {
-    return roles.value[0]?.name == 'admin' || roles.value[0]?.name == 'manager';
+    return roles.value.includes('admin') || roles.value.includes('manager');
 });
 
-// Керування станом випадаючого меню користувача
+// Керування станом випадаючого меню
 const isMenuOpen = ref(false);
 const dropdownRef = ref(null);
 
@@ -47,15 +47,15 @@ const logout = () => {
 </script>
 
 <template>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
         <!-- Кнопка кошика з лічильником -->
         <button
             @click="isCartOpen = true"
-            class="relative flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 text-slate-200 transition hover:border-slate-700 hover:bg-slate-800 focus:outline-none"
-            title="Відкрити кошик"
+            class="relative flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-2.5 sm:px-3 py-2 text-slate-200 transition hover:border-slate-700 hover:bg-slate-800 focus:outline-none"
+            title="Кошик"
         >
             <span class="text-base">🛒</span>
-            <span class="hidden text-xs font-semibold sm:block">Кошик</span>
+            <span class="hidden text-xs font-semibold sm:inline">Кошик</span>
 
             <!-- Бейдж з кількістю товарів -->
             <span
@@ -69,23 +69,35 @@ const logout = () => {
         <!-- Висувна панель кошика (Drawer) -->
         <CartDrawer :is-open="isCartOpen" @close="isCartOpen = false" />
 
-        <!-- Якщо користувач авторизований -->
-        <div v-if="user" ref="dropdownRef" class="relative">
+        <!-- Меню користувача / Гостя (ховається у випадаючий список на всіх пристроях) -->
+        <div ref="dropdownRef" class="relative">
             <button
                 @click.stop="toggleMenu"
-                class="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-1.5 transition hover:border-slate-700 hover:bg-slate-800 focus:outline-none"
+                class="flex items-center gap-2 sm:gap-3 rounded-xl border border-slate-800 bg-slate-900/80 p-2 sm:px-3 sm:py-1.5 transition hover:border-slate-700 hover:bg-slate-800 focus:outline-none"
             >
-                <!-- Аватар з першою літерою імені -->
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 font-bold text-slate-950 text-xs shadow-inner">
-                    {{ user.name ? user.name.charAt(0).toUpperCase() : 'U' }}
-                </div>
-                <div class="hidden text-left sm:block">
-                    <p class="text-xs font-semibold text-slate-100 leading-tight">{{ user.name }}</p>
-                    <p class="text-[10px] text-slate-400 leading-tight truncate max-w-[120px]">{{ user.email }}</p>
-                </div>
-                <!-- Стрілка вниз, що обертається -->
+                <!-- Якщо залогінений -> показуємо аватар з літерою -->
+                <template v-if="user">
+                    <div class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-amber-500 font-bold text-slate-950 text-xs shadow-inner">
+                        {{ user.name ? user.name.charAt(0).toUpperCase() : 'U' }}
+                    </div>
+                    <div class="hidden text-left sm:block">
+                        <p class="text-xs font-semibold text-slate-100 leading-tight">{{ user.name }}</p>
+                        <p class="text-[10px] text-slate-400 leading-tight truncate max-w-[120px]">{{ user.email }}</p>
+                    </div>
+                </template>
+
+                <!-- Якщо гість -> показуємо стильну іконку користувача -->
+                <template v-else>
+                    <div class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-slate-800 text-amber-500 text-sm">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </template>
+
+                <!-- Стрілка вниз -->
                 <svg
-                    class="h-4 w-4 text-slate-400 transition-transform duration-200"
+                    class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 transition-transform duration-200"
                     :class="{ 'rotate-180': isMenuOpen }"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -108,70 +120,76 @@ const logout = () => {
                     v-if="isMenuOpen"
                     class="absolute right-0 mt-2 w-56 rounded-xl border border-slate-800 bg-slate-900 py-2 shadow-2xl z-50 text-slate-200 divide-y divide-slate-800/80"
                 >
-                    <!-- Інформація про юзера для мобільних екранів -->
-                    <div class="px-4 py-2.5 sm:hidden">
-                        <p class="text-xs font-semibold text-slate-100">{{ user.name }}</p>
-                        <p class="text-[10px] text-slate-400 truncate">{{ user.email }}</p>
-                    </div>
+                    <!-- Якщо користувач залогінений -->
+                    <template v-if="user">
+                        <!-- Інформація про юзера для мобільних екранів -->
+                        <div class="px-4 py-2.5 sm:hidden">
+                            <p class="text-xs font-semibold text-slate-100">{{ user.name }}</p>
+                            <p class="text-[10px] text-slate-400 truncate">{{ user.email }}</p>
+                        </div>
 
-                    <!-- Основні посилання особистого кабінету -->
-                    <div class="py-1">
-                        <!-- Посилання на Адмін-панель (доступно тільки admin та manager) -->
-                        <Link
-                            v-if="isAdminOrManager"
-                            :href="route('admin.dashboard')"
-                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-slate-800/70 transition"
-                            @click="isMenuOpen = false"
-                        >
-                            <span>⚙️</span> Адмін-панель
-                        </Link>
+                        <div class="py-1">
+                            <!-- Адмін-панель -->
+                            <Link
+                                v-if="isAdminOrManager"
+                                :href="route('admin.dashboard')"
+                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-slate-800/70 transition"
+                                @click="isMenuOpen = false"
+                            >
+                                <span>⚙️</span> Адмін-панель
+                            </Link>
 
-                        <!-- Мої дані (заглушка / профіль) -->
-                        <Link
-                            :href="route('profile.edit')"
-                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition"
-                            @click="isMenuOpen = false"
-                        >
-                            <span>👤</span> Мої дані
-                        </Link>
+                            <!-- Мої дані -->
+                            <Link
+                                :href="route('profile.edit')"
+                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition"
+                                @click="isMenuOpen = false"
+                            >
+                                <span>👤</span> Мої дані
+                            </Link>
 
-                        <!-- Мої замовлення (заглушка) -->
-                        <Link
-                            href="#"
-                            class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition"
-                            @click="isMenuOpen = false"
-                        >
-                            <span>📦</span> Мої замовлення
-                        </Link>
-                    </div>
+                            <!-- Мої замовлення -->
+                            <Link
+                                href="#"
+                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition"
+                                @click="isMenuOpen = false"
+                            >
+                                <span>📦</span> Мої замовлення
+                            </Link>
+                        </div>
 
-                    <!-- Вихід із системи -->
-                    <div class="py-1">
-                        <button
-                            @click="logout"
-                            class="flex w-full items-center gap-2.5 px-4 py-2 text-xs font-medium text-red-400 hover:bg-slate-800/70 transition"
-                        >
-                            <span>🚪</span> Вийти
-                        </button>
-                    </div>
+                        <!-- Вихід -->
+                        <div class="py-1">
+                            <button
+                                @click="logout"
+                                class="flex w-full items-center gap-2.5 px-4 py-2 text-xs font-medium text-red-400 hover:bg-slate-800/70 transition"
+                            >
+                                <span>🚪</span> Вийти
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Якщо користувач гість -->
+                    <template v-else>
+                        <div class="py-1">
+                            <Link
+                                :href="route('login')"
+                                class="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition"
+                                @click="isMenuOpen = false"
+                            >
+                                <span>🔑</span> Увійти
+                            </Link>
+                            <Link
+                                :href="route('register')"
+                                class="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-amber-400 hover:bg-slate-800/70 transition"
+                                @click="isMenuOpen = false"
+                            >
+                                <span>✨</span> Реєстрація
+                            </Link>
+                        </div>
+                    </template>
                 </div>
             </Transition>
-        </div>
-
-        <!-- Якщо користувач гість (не залогінений) -->
-        <div v-else class="flex items-center gap-2">
-            <Link
-                :href="route('login')"
-                class="rounded-xl px-4 py-2 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white"
-            >
-                Увійти
-            </Link>
-            <Link
-                :href="route('register')"
-                class="rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-amber-400"
-            >
-                Реєстрація
-            </Link>
         </div>
     </div>
 </template>

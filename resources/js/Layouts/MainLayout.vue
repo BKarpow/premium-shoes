@@ -5,9 +5,6 @@ import UserNavbar from '@/Components/UserNavbar.vue';
 
 const page = usePage();
 
-// Отримуємо ролі поточного користувача з Inertia props
-const roles = computed(() => page.props.auth.user?.roles || []);
-
 // Отримуємо глобальні категорії з Inertia props
 const categories = computed(() => page.props.categories || []);
 
@@ -47,7 +44,7 @@ onUnmounted(() => {
                     <Link :href="route('catalog.index')" class="flex items-center gap-2 group">
                         <span class="text-2xl">👟</span>
                         <span class="text-lg font-black tracking-wider text-white uppercase group-hover:text-amber-500 transition-colors">
-                            Sneaker<span class="text-amber-500">Store</span>
+                            Premium
                         </span>
                     </Link>
 
