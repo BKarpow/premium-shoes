@@ -72,7 +72,7 @@ class ProductController extends Controller
         // Повертаємо Vue-компонент через Inertia
         return Inertia::render('Catalog/Index', [
             'products' => $products,
-            'categories' => Category::where('is_active', true)->get(['id', 'name', 'slug']),
+            // 'categories' => Category::where('is_active', true)->get(['id', 'name', 'slug']),
             'brands' => Brand::where('is_active', true)->get(['id', 'name', 'slug']),
             'sizes' => Size::orderBy('sort_order')->get(['id', 'value', 'length_cm']),
             // Передаємо поточні фільтри назад на фронтенд для збереження стану форми
