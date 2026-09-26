@@ -26,7 +26,7 @@ class AdminBrandController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:brands,name'],
-            'description' => ['nullable', 'string'],
+
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -48,7 +48,7 @@ class AdminBrandController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('brands')->ignore($brand->id)],
-            'description' => ['nullable', 'string'],
+
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
