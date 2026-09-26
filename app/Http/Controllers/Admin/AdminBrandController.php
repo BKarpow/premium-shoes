@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
-class BrandController extends Controller
+class AdminBrandController extends Controller
 {
     public function index()
     {

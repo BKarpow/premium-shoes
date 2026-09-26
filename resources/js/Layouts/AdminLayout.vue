@@ -8,6 +8,7 @@ const page = usePage();
 const roles = computed(() => page.props.auth.user?.roles || []);
 
 // Перевірка прав для відображення пунктів меню
+console.debug("roels", roles);
 const isAdmin = computed(() => roles.value[0].name == 'admin');
 const isAdminOrManager = computed(() => roles.value[0].name == 'admin' || roles.value[0].name == 'manager');
 </script>
@@ -80,6 +81,30 @@ const isAdminOrManager = computed(() => roles.value[0].name == 'admin' || roles.
                     >
                         <span class="text-lg">📦</span>
                         <span>Замовлення</span>
+                    </Link>
+
+                    <!-- Категорії -->
+                    <Link
+                        v-if="isAdminOrManager"
+                        :href="route('admin.categories.index')"
+                        :class="[
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition',
+                            route().current('admin.categories.*') ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-800'
+                        ]"
+                    >
+                        <span>📁</span> Категорії
+                    </Link>
+
+                    <!-- Бренди -->
+                    <Link
+                        v-if="isAdminOrManager"
+                        :href="route('admin.brands.index')"
+                        :class="[
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition',
+                            route().current('admin.brands.*') ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-800'
+                        ]"
+                    >
+                        <span>🏷️</span> Бренди
                     </Link>
 
                     <!-- Адміністрування користувачів (Тільки для Admin) -->

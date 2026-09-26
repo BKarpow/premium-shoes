@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
-class CategoryController extends Controller
+class AdminCategoryController extends Controller
 {
     public function index()
     {
@@ -33,11 +33,8 @@ class CategoryController extends Controller
             'description' => ['nullable', 'string'],
             'parent_id' => ['nullable', 'exists:categories,id'],
         ]);
-        if ($validated["parent_id"]) {
-            $slug = Category::find($validated["parent_id"]);
-            $validated['slug'] = $slug->id ."_". $slug->slug ."_". Str::slug($validated['name']);
-        } else
-            $validated['slug'] = Str::slug($validated['name']);
+
+        $validated['slug'] = Str::slug($validated['name']);
 
         Category::create($validated);
 

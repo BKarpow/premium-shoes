@@ -1,15 +1,15 @@
 <?php
 
-use App\Http\Controllers\ProfileController;  
+use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;   
+use Inertia\Inertia;
 
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
-use App\Http\Controllers\Admin\DashboardController;  
-use App\Http\Controllers\Admin\UserController;  
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\CartController;
 
@@ -103,7 +103,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+    Route::resource('categories', AdminCategoryController::class)->except(['show']);
+    Route::resource('brands', AdminBrandController::class)->except(['show']);
 });
+
+
+
+
+
 
 
 require __DIR__.'/auth.php';
