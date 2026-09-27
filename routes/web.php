@@ -98,7 +98,7 @@ use App\Http\Controllers\Admin\OrderController;
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     // ... інші роути адмінки (products, categories, тощо)
-
+// Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
     // Замовлення в адмінці
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
