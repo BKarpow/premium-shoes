@@ -13,11 +13,15 @@ const props = defineProps({
   similarProducts: {
     type: Array,
     default: () => []
-  },
+    },
+  savedPhone:{
+    type: String,
+    default: () => ""
+    },
   cart: {
     type: Object,
     default: () => ({ items: [], total: 0 })
-  }
+  },
 })
 
 const selectedSize = ref(null);
@@ -236,6 +240,7 @@ const openOneClick = () => {
       :product="product"
       :selected-size="selectedSize"
       @close="isOneClickOpen = false"
+      :phone="props.phone"
       @success="Swal.fire({ title: 'Дякуємо!', text: 'Наш менеджер зателефонує вам найближчим часом.', icon: 'success', background: '#171717', color: '#fff', confirmButtonColor: '#f59e0b' })"
     />
 

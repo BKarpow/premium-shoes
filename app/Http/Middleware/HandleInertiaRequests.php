@@ -41,7 +41,8 @@ class HandleInertiaRequests extends Middleware
                                 'name' => $request->user()->name,
                                 'email' => $request->user()->email,
                                 'roles' => $request->user()->roles, // 👈 Впевніться, що ролі підвантажуються тут
-                            ] : null,
+                                'profile' => $request->user()->profile(),
+                ] : null,
             ],
                     'cart' => fn () => $cartService->getCartDetails(),
                     'categories' => fn () => Category::whereNull('parent_id')

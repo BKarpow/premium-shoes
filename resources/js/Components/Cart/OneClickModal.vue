@@ -4,7 +4,8 @@ import { useForm } from '@inertiajs/vue3'
 const props = defineProps({
   isOpen: Boolean,
   product: Object,
-  selectedSize: Object
+    selectedSize: Object,
+    phone: String
 })
 
 const emit = defineEmits(['close', 'success'])
@@ -13,7 +14,7 @@ const form = useForm({
   product_id: null,
   size_id: null,
   name: '',
-  phone: ''
+  phone: props.phone
 })
 
 const submit = () => {

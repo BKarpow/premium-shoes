@@ -8,6 +8,7 @@ use App\Models\Size;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -85,6 +86,7 @@ class ProductController extends Controller
      */
     public function show(string $slug): Response
         {
+            $user = Auth::user()?->load('profile');
             $product = Product::query()
                 ->where('slug', $slug)
                 ->where('is_active', true)
@@ -108,6 +110,8 @@ class ProductController extends Controller
             return Inertia::render('Product/Show', [
                 'product' => $product,
                 'similarProducts' => $relatedProducts,
+                'savedPhone' => $user?->profile ?
+                                $user->profile?->phone ?? "" : [],
             ]);
         }
 }

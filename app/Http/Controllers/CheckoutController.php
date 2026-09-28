@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
@@ -33,6 +34,7 @@ class CheckoutController extends Controller
     public function index()
     {
         $cartDetails = $this->cartService->getCartDetails();
+        $user = Auth::user()?->load('profile');
 
         // Якщо кошик порожній, перенаправляємо на головну
         if (empty($cartDetails['items'])) {
@@ -41,6 +43,15 @@ class CheckoutController extends Controller
 
         return Inertia::render('Checkout/Index', [
             'cart' => $cartDetails,
+            'savedProfile' => $user?->profile ? [
+                        'first_name' => $user->profile->first_name,
+                        'last_name' => $user->profile->last_name,
+                        'phone' => $user->profile->phone,
+                        'np_city_ref' => $user->profile->np_city_ref,
+                        'np_city_name' => $user->profile->np_city_name,
+                        'np_warehouse_ref' => $user->profile->np_warehouse_ref,
+                        'np_warehouse_name' => $user->profile->np_warehouse_name,
+                    ] : null,
         ]);
     }
 
@@ -60,10 +71,11 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
+
             'shipping_type' => 'required|in:pickup,nova_poshta',
             'city_ref' => 'required_if:shipping_type,nova_poshta|nullable|string',
             'city_name' => 'required_if:shipping_type,nova_poshta|nullable|string',
@@ -76,6 +88,24 @@ class CheckoutController extends Controller
         if (empty($cartDetails['items'])) {
             return back()->with('error', 'Кошик порожній!');
         }
+
+        $profileData = [
+                'first_name' => $validated['first_name'],
+                'phone' => $validated['phone'],
+            ];
+
+            if ($validated['shipping_type'] === 'nova_poshta') {
+                $profileData['np_city_ref'] = $validated['city_ref'];
+                $profileData['np_city_name'] = $validated['city_name'];
+                $profileData['np_warehouse_ref'] = $validated['warehouse_ref'];
+                $profileData['np_warehouse_name'] = $validated['warehouse_address'];
+                $profileData['np_warehouse_address'] = $validated['warehouse_address'] ?? null;
+            }
+
+            $user->profile()->updateOrCreate(
+                                ['user_id' => $user->id],
+                                $profileData
+                            );
 
         // Транзакція для безпеки даних (замовлення + позиції + списання складу)
         DB::beginTransaction();

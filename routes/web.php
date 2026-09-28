@@ -109,7 +109,25 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
 
 
+// use App\Http\Controllers\ProfileController;
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+
+use App\Http\Controllers\UserOrderController;
+
+Route::middleware('auth')->group(function () {
+    // ... інші роути профілю
+
+    // Історія замовлень користувача
+    Route::get('/my-orders', [UserOrderController::class, 'index'])
+    ->name('orders.index');
+    Route::get('/my-orders/{order}', [UserOrderController::class, 'show'])
+    ->name('orders.show');
+});
 
 
 

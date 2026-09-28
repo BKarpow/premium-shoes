@@ -7,6 +7,7 @@ const page = usePage();
 
 // Отримуємо поточного користувача, ролі та дані кошика з Inertia props
 const user = computed(() => page.props.auth?.user);
+console.debug("Profile", user.value?.profile);
 const roles = computed(() => user.value?.roles || []);
 const cart = computed(() => page.props.cart || { total_count: 0 });
 
@@ -150,7 +151,7 @@ const logout = () => {
 
                             <!-- Мої замовлення -->
                             <Link
-                                href="#"
+                                :href="route('orders.index')"
                                 class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800/70 hover:text-white transition"
                                 @click="isMenuOpen = false"
                             >

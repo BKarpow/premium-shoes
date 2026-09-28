@@ -1,24 +1,25 @@
 <script setup>
-import { useForm, Head } from '@inertiajs/vue3';
+import { useForm, Head, usePage } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import CustomerForm from './Partials/CustomerForm.vue';
 import ShippingSelector from './Partials/ShippingSelector.vue';
 import OrderSummary from './Partials/OrderSummary.vue';
 
-defineProps({
-  cart: Object,
+const props = defineProps({
+    cart: Object,
+  savedProfile: Object,
 });
 
 const form = useForm({
-  first_name: '',
-  last_name: '',
-  phone: '',
-  email: '',
-  shipping_type: 'pickup',
-  city_ref: '',
-  city_name: '',
-  warehouse_ref: '',
-  warehouse_address: '',
+  first_name: props.savedProfile?.first_name || '',
+  last_name: props.savedProfile?.last_name || '',
+  phone: props.savedProfile?.phone || '',
+  email: usePage().props.auth.user?.email || '',
+  shipping_type: 'nova_poshta',
+  city_ref: props.savedProfile?.np_city_ref || '',
+  city_name: props.savedProfile?.np_city_name || '',
+  warehouse_ref: props.savedProfile?.np_warehouse_ref || '',
+  warehouse_address: props.savedProfile?.np_warehouse_name || '',
 });
 
 const submitOrder = () => {
