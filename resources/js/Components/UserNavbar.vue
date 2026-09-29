@@ -7,14 +7,19 @@ const page = usePage();
 
 // Отримуємо поточного користувача, ролі та дані кошика з Inertia props
 const user = computed(() => page.props.auth?.user);
-console.debug("Profile", user.value?.profile);
+console.debug("Role", user.value?.roles[0].name);
 const roles = computed(() => user.value?.roles || []);
 const cart = computed(() => page.props.cart || { total_count: 0 });
 
 // Перевірка, чи користувач є адміністратором або менеджером
 const isAdminOrManager = computed(() => {
-    return roles.value.includes('admin') || roles.value.includes('manager');
+    if (roles.value?.length !== 0)
+        return roles.value[0]?.name == 'admin' || roles.value[0]?.name == 'manager';
+    else
+        return false;
 });
+
+console.debug("isAdmin", isAdminOrManager.value )
 
 // Керування станом випадаючого меню
 const isMenuOpen = ref(false);

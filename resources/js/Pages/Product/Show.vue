@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import ImageGallery from '@/Components/Product/ImageGallery.vue'
@@ -28,6 +28,8 @@ const selectedSize = ref(null);
 const selectedVariantId = ref(null);
 const isCartOpen = ref(false)
 const isOneClickOpen = ref(false)
+
+const varIdComp = computed(() => props.product.variants.find(s => s.size_id === selectedSize.value)?.id );
 
 const form = useForm({
   product_id: props.product.id,
@@ -79,7 +81,9 @@ const openOneClick = () => {
     showSizeWarning()
     return
   }
-  isOneClickOpen.value = true
+    selectedVariantId.value = props.product.variants.find(s => s.size_id === selectedSize.value)?.id;
+    console.debug("varId", varIdComp.value);
+    isOneClickOpen.value = true
 }
 </script>
 
@@ -236,11 +240,13 @@ const openOneClick = () => {
 
     <!-- Модальне вікно 1-клік -->
     <OneClickModal
+    :variant-id="selectedVariantId"
       :is-open="isOneClickOpen"
       :product="product"
       :selected-size="selectedSize"
       @close="isOneClickOpen = false"
-      :phone="props.phone"
+      :phone="props.savedPhone"
+
       @success="Swal.fire({ title: 'Дякуємо!', text: 'Наш менеджер зателефонує вам найближчим часом.', icon: 'success', background: '#171717', color: '#fff', confirmButtonColor: '#f59e0b' })"
     />
 

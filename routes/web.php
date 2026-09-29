@@ -130,5 +130,11 @@ Route::middleware('auth')->group(function () {
 });
 
 
+use App\Http\Controllers\QuickOrderController;
+
+Route::post('/quick-order', [QuickOrderController::class, 'store'])
+->name('quick-order.store');
+
+
 
 require __DIR__.'/auth.php';

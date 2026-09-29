@@ -5,25 +5,29 @@ const props = defineProps({
   isOpen: Boolean,
   product: Object,
     selectedSize: Object,
-    phone: String
+    phone: String,
+    variantId: [Number, String],
 })
 
 const emit = defineEmits(['close', 'success'])
-
+console.debug("props.variantId", props.variantId);
 const form = useForm({
   product_id: null,
   size_id: null,
-  name: '',
+    name: '',
+    variant_id: props.variantId,
   phone: props.phone
 })
 
 const submit = () => {
   if (!props.selectedSize) return
 
-  form.product_id = props.product.id
-  form.size_id = props.selectedSize.id
+    form.product_id = props.product.id
+    form.variant_id = props.variantId;
+    form.size_id = props.selectedSize.id
+    // form.phone = props.phone;
 
-  form.post(route('orders.oneClick'), {
+  form.post(route('quick-order.store'), {
     preserveScroll: true,
     onSuccess: () => {
       form.reset()
