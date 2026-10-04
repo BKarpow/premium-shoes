@@ -136,5 +136,14 @@ Route::post('/quick-order', [QuickOrderController::class, 'store'])
 ->name('quick-order.store');
 
 
+use App\Http\Controllers\PosController;
+
+Route::middleware(['auth', 'role:admin|manager'])->prefix('pos')->name('pos.')->group(function () {
+    Route::get('/', [PosController::class, 'index'])->name('index');
+    Route::post('/sale', [PosController::class, 'store'])->name('store');
+    Route::get('/sales-history', [PosController::class, 'history'])->name('sales'); // 👈 Новий роут
+
+});
+
 
 require __DIR__.'/auth.php';

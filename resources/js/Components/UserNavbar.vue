@@ -136,6 +136,16 @@ const logout = () => {
 
                         <div class="py-1">
                             <!-- Адмін-панель -->
+
+                            <Link
+                                v-if="isAdminOrManager"
+                                :href="route('pos.index')"
+                                class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-slate-800/70 transition"
+                                @click="isMenuOpen = false"
+                            >
+                                <span>⚙️</span> POS-термінал
+                            </Link>
+
                             <Link
                                 v-if="isAdminOrManager"
                                 :href="route('admin.dashboard')"
