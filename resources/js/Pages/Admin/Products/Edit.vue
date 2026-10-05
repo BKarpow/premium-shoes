@@ -83,12 +83,30 @@ const submit = () => {
                             <label class="block text-xs uppercase text-slate-400 mb-2">Slug</label>
                             <input v-model="form.slug" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white" />
                         </div>
-                        <div>
-                            <label class="block text-xs uppercase text-slate-400 mb-2">Категорія</label>
-                            <select v-model="form.category_id" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white">
-                                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                            </select>
-                        </div>
+
+
+
+                        <!-- Вибір категорії -->
+                                        <div>
+                                            <label class="block text-sm mb-1 text-slate-300">Категорія</label>
+                                            <select
+                                                v-model="form.category_id"
+                                                class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
+                                                required
+                                            >
+                                                <option value="" disabled>Оберіть категорію</option>
+                                                <option
+                                                    v-for="category in categories"
+                                                    :key="category.id"
+                                                    :value="category.id"
+                                                >
+                                                    <!-- Якщо є батьківська категорія, робимо відступ -->
+                                                    {{ category.parent_id ? '— ' + category.name : category.name }}
+                                                </option>
+                                            </select>
+                                            <div v-if="form.errors.category_id" class="text-red-400 text-xs mt-1">{{ form.errors.category_id }}</div>
+                                        </div>
+
                         <div>
                             <label class="block text-xs uppercase text-slate-400 mb-2">Бренд</label>
                             <select v-model="form.brand_id" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white">

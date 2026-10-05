@@ -24,6 +24,8 @@ const form = useForm({
 
 const imagePreviews = ref([]);
 
+const isGenerating = ref(false);
+
 // 1. Генерація slug (з підтримкою кирилиці)
 watch(() => form.title, (newTitle) => {
     form.slug = newTitle
@@ -95,6 +97,33 @@ const updateStock = (sizeId, newStock) => {
     }
 };
 
+// Генерація опису по назві та групі товару
+const generateDescription = async () => {
+    if (!form.title || !form.price || !form.category_id) {
+        alert('Будь ласка, заповніть Назву, Ціну та оберіть Категорію!');
+        return;
+    }
+
+    isGenerating.value = true;
+
+    try {
+        const response = await axios.post(route('admin.ai.description'), {
+            title: form.title,
+            price: form.price,
+            category_id: form.category_id,
+        });
+
+        if (response.data.success) {
+            form.description = response.data.description;
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Не вдалося згенерувати опис.');
+    } finally {
+        isGenerating.value = false;
+    }
+};
+
 // 5. Відправка форми з multipart/form-data
 const submit = () => {
     form.post(route('admin.products.store'), {
@@ -150,14 +179,26 @@ const submit = () => {
                             <span v-if="form.errors.slug" class="text-xs text-rose-500 mt-1 block">{{ form.errors.slug }}</span>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Категорія *</label>
-                            <select v-model="form.category_id" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none" required>
-                                <option value="" disabled>Оберіть категорію</option>
-                                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                            </select>
-                            <span v-if="form.errors.category_id" class="text-xs text-rose-500 mt-1 block">{{ form.errors.category_id }}</span>
-                        </div>
+                        <!-- Вибір категорії -->
+                                        <div>
+                                            <label class="block text-sm mb-1 text-slate-300">Категорія</label>
+                                            <select
+                                                v-model="form.category_id"
+                                                class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
+                                                required
+                                            >
+                                                <option value="" disabled>Оберіть категорію</option>
+                                                <option
+                                                    v-for="category in categories"
+                                                    :key="category.id"
+                                                    :value="category.id"
+                                                >
+                                                    <!-- Якщо є батьківська категорія, робимо відступ -->
+                                                    {{ category.parent_id ? '— ' + category.name : category.name }}
+                                                </option>
+                                            </select>
+                                            <div v-if="form.errors.category_id" class="text-red-400 text-xs mt-1">{{ form.errors.category_id }}</div>
+                                        </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Бренд *</label>
@@ -180,10 +221,22 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Опис товару</label>
-                        <textarea v-model="form.description" rows="4" placeholder="Опис матеріалу, підошви..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
+                    <!-- Опис з кнопкою AI -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-sm text-slate-300">Опис товару</label>
+                                        <button
+                                            type="button"
+                                            @click="generateDescription"
+                                            :disabled="isGenerating"
+                                            class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1 disabled:opacity-50"
+                                        >
+                                            <span v-if="isGenerating">Генерую ШІ... ✨</span>
+                                            <span v-else>Згенерувати через Gemini ✨</span>
+                                        </button>
+                                    </div>
+                                    <textarea v-model="form.description" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"></textarea>
+                                </div>
 
                     <div class="flex items-center gap-3">
                         <input v-model="form.is_active" type="checkbox" id="is_active" class="w-4 h-4 bg-slate-950 border-slate-800 rounded text-amber-500 focus:ring-0" />

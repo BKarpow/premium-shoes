@@ -35,8 +35,9 @@ class ProductController extends Controller
 
     public function create(): Response
     {
+        $categories = Category::with('parent')->orderBy('name')->get();
         return Inertia::render('Admin/Products/Create', [
-            'categories' => Category::all(['id', 'name']),
+            'categories' => $categories,
             'brands' => Brand::all(['id', 'name']),
             'sizes' => Size::orderBy('sort_order')->get(['id', 'value']),
         ]);
@@ -102,10 +103,10 @@ class ProductController extends Controller
     public function edit(Product $product): Response
     {
         $product->load(['images', 'variants']);
-
+        $categories = Category::with('parent')->orderBy('name')->get();
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,
-            'categories' => Category::all(['id', 'name']),
+            'categories' => $categories,
             'brands' => Brand::all(['id', 'name']),
             'sizes' => Size::orderBy('sort_order')->get(['id', 'value']),
         ]);

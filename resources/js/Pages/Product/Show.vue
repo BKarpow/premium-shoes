@@ -195,6 +195,15 @@ const openOneClick = () => {
         </div>
       </div>
 
+        <!-- Опис товару -->
+
+        <div v-if="product.description?.length > 0" class="pt-12 border-t border-neutral-800 space-y-6">
+            <h2 class="text-amber-500 text-xl font-bold uppercase tracking-wider">
+                Опис
+            </h2>
+            <p>{{ product.description }}</p>
+        </div>
+
       <!-- БЛОК СХОЖИХ ТОВАРІВ -->
       <div v-if="similarProducts && similarProducts.length > 0" class="pt-12 border-t border-neutral-800 space-y-6">
         <div class="flex justify-between items-end">

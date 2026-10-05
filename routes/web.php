@@ -146,4 +146,12 @@ Route::middleware(['auth', 'role:admin|manager'])->prefix('pos')->name('pos.')->
 });
 
 
+use App\Http\Controllers\Admin\AiProductController;
+
+Route::middleware(['auth','role:admin|manager'])->prefix('admin')->name('admin.')->group(function () {
+    // Маршрут для генерації опису через AI
+    Route::post('/ai/generate-description', [AiProductController::class, 'generateDescription'])->name('ai.description');
+});
+
+
 require __DIR__.'/auth.php';
