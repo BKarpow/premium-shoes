@@ -16,6 +16,33 @@ use Inertia\Response;
 
 class ProductController extends Controller
 {
+    private function getCategories(): array
+    {
+        $parentCategories = Category::whereNull('parent_id')->with('children')
+        ->orderBy('name')->get();
+
+            // Формуємо плоский список, але в правильному ієрархічному порядку
+            $categories = [];
+            foreach ($parentCategories as $parent) {
+                $categories[] = [
+                    'id' => $parent->id,
+                    'name' => $parent->name,
+                    'is_parent' => true,
+                ];
+
+                if ($parent->children) {
+                    foreach ($parent->children as $child) {
+                        $categories[] = [
+                            'id' => $child->id,
+                            'name' => '— ' . $child->name, // Візуальний відступ для дочірньої
+                            'is_parent' => false,
+                        ];
+                    }
+                }
+            }
+            return $categories;
+    }
+
     public function index(Request $request): Response
     {
         $products = Product::query()
@@ -35,9 +62,9 @@ class ProductController extends Controller
 
     public function create(): Response
     {
-        $categories = Category::with('parent')->orderBy('name')->get();
+
         return Inertia::render('Admin/Products/Create', [
-            'categories' => $categories,
+            'categories' => $this->getCategories(),
             'brands' => Brand::all(['id', 'name']),
             'sizes' => Size::orderBy('sort_order')->get(['id', 'value']),
         ]);
@@ -103,10 +130,9 @@ class ProductController extends Controller
     public function edit(Product $product): Response
     {
         $product->load(['images', 'variants']);
-        $categories = Category::with('parent')->orderBy('name')->get();
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,
-            'categories' => $categories,
+            'categories' => $this->getCategories(),
             'brands' => Brand::all(['id', 'name']),
             'sizes' => Size::orderBy('sort_order')->get(['id', 'value']),
         ]);

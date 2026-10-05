@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { slugify, transliterate } from '@systemoperator/slug';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import CategorySelect from '@/Components/Admin/CategorySelect.vue';
 
 
 const props = defineProps({
@@ -176,26 +177,12 @@ const submit = () => {
                             <span v-if="form.errors.slug" class="text-xs text-rose-500 mt-1 block">{{ form.errors.slug }}</span>
                         </div>
 
-                        <!-- Вибір категорії -->
-                                        <div>
-                                            <label class="block text-sm mb-1 text-slate-300">Категорія</label>
-                                            <select
-                                                v-model="form.category_id"
-                                                class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
-                                                required
-                                            >
-                                                <option value="" disabled>Оберіть категорію</option>
-                                                <option
-                                                    v-for="category in categories"
-                                                    :key="category.id"
-                                                    :value="category.id"
-                                                >
-                                                    <!-- Якщо є батьківська категорія, робимо відступ -->
-                                                    {{ category.parent_id ? '— ' + category.name : category.name }}
-                                                </option>
-                                            </select>
-                                            <div v-if="form.errors.category_id" class="text-red-400 text-xs mt-1">{{ form.errors.category_id }}</div>
-                                        </div>
+                        <!-- 🟢 Використання нашого окремого компонента категорії -->
+                         <CategorySelect
+                             v-model="form.category_id"
+                             :categories="categories"
+                            :error="form.errors.category_id"
+                        />
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Бренд *</label>
