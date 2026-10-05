@@ -2,11 +2,18 @@
 import { ref, computed } from 'vue'
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import ImageGallery from '@/Components/Product/ImageGallery.vue'
 import SizeSelector from '@/Components/Product/SizeSelector.vue'
 import OneClickModal from '@/Components/Cart/OneClickModal.vue'
 import CartDrawer from '@/Components/Cart/CartDrawer.vue';
 import MainLayout from '@/Layouts/MainLayout.vue';
+
+marked.setOptions({
+  gfm: true,
+  breaks: true // Переноси рядків при натисканні Enter
+});
 
 const props = defineProps({
   product: Object,
@@ -53,6 +60,27 @@ const showSizeWarning = () => {
     }
   })
 }
+
+// Обчислювана властивість для конвертації та санітазації
+const compiledMarkdownDescription = computed(() => {
+  if (!props.product.description) return '';
+
+    const rawHtml = marked.parse(props.product.description);
+  let tbSizesMD = `| Розмір (EU) | Довжина устілки (см) |
+  | --- | --- |
+  | **36** | 23.0 см |
+  | **37** | 23.5 см |
+  | **38** | 24.5 см |
+  | **39** | 25.0 см |
+  | **40** | 25.5 см |
+  | **41** | 26.5 см |
+  | **42** | 27.0 см |
+  | **43** | 27.5 см |
+  | **44** | 28.5 см |
+  | **45** | 29.0 см |`;
+  tbSizesMD = marked.parse(tbSizesMD);
+  return DOMPurify.sanitize(rawHtml+"<br/>"+tbSizesMD);
+});
 
 const addToCart = () => {
     if (!selectedSize.value) {
@@ -201,7 +229,7 @@ const openOneClick = () => {
             <h2 class="text-amber-500 text-xl font-bold uppercase tracking-wider">
                 Опис
             </h2>
-            <p>{{ product.description }}</p>
+            <div v-html="compiledMarkdownDescription"></div>
         </div>
 
       <!-- БЛОК СХОЖИХ ТОВАРІВ -->

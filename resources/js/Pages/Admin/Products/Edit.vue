@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useForm, Link, router, Head } from '@inertiajs/vue3';
+import { slugify, transliterate } from '@systemoperator/slug';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -30,6 +31,11 @@ const form = useForm({
 });
 
 const isGenerating = ref(false);
+
+// 1. Генерація slug (з підтримкою кирилиці)
+watch(() => form.title, (newTitle) => {
+    form.slug = slugify(newTitle);
+});
 
 const handleNewImages = (e) => {
     form.new_images = Array.from(e.target.files);
@@ -149,24 +155,25 @@ const submit = () => {
                             <label class="block text-xs uppercase text-slate-400 mb-2">Стара ціна (грн)</label>
                             <input v-model="form.old_price" type="number" step="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-white" />
                         </div>
-                        <!-- Опис з кнопкою AI -->
-                                    <div>
-                                        <div class="flex justify-between items-center mb-1">
-                                            <label class="block text-sm text-slate-300">Опис товару</label>
-                                            <button
-                                                type="button"
-                                                @click="generateDescription"
-                                                :disabled="isGenerating"
-                                                class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1 disabled:opacity-50"
-                                            >
-                                                <span v-if="isGenerating">Генерую ШІ... ✨</span>
-                                                <span v-else>Згенерувати через Gemini ✨</span>
-                                            </button>
-                                        </div>
-                                        <textarea v-model="form.description" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"></textarea>
-                                    </div>
+
 
                     </div>
+                    <!-- Опис з кнопкою AI -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-sm text-slate-300">Опис товару</label>
+                                        <button
+                                            type="button"
+                                            @click="generateDescription"
+                                            :disabled="isGenerating"
+                                            class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1 disabled:opacity-50"
+                                        >
+                                            <span v-if="isGenerating">Генерую ШІ... ✨</span>
+                                            <span v-else>Згенерувати через Gemini ✨</span>
+                                        </button>
+                                    </div>
+                                    <textarea v-model="form.description" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"></textarea>
+                                </div>
                 </div>
 
                 <!-- 🖼️ Наявні фото та додавання нових -->

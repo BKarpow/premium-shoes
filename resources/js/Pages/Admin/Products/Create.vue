@@ -1,7 +1,9 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
+import { slugify, transliterate } from '@systemoperator/slug';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+
 
 const props = defineProps({
     categories: Array,
@@ -28,12 +30,7 @@ const isGenerating = ref(false);
 
 // 1. Генерація slug (з підтримкою кирилиці)
 watch(() => form.title, (newTitle) => {
-    form.slug = newTitle
-        .toLowerCase()
-        .trim()
-        .replace(/ /g, '-')
-        .replace(/[^\w\u0400-\u04FF-]/g, '')
-        .replace(/--+/g, '-');
+    form.slug = slugify(newTitle);
 });
 
 // 2. Метод завантаження фотографій
