@@ -29,6 +29,8 @@ jobs:
             cd /var/www/dexby102/data/www/premiumshoes.pp.ua/premium-shoes
             echo "Successfully changed directory to $(pwd)"
 
+            git reset --hard HEAD
+
             # 1. Оновлення коду з репозиторію
             git pull origin main
 
