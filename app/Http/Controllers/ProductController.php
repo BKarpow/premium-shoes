@@ -21,13 +21,17 @@ class ProductController extends Controller
             ->where('is_active', true)
             ->with(['category', 'brand', 'images', 'variants.size']);
 
-        // 1. Фільтр за категорією (slug)
-        if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->input('category'));
-            });
-        }
+            // 1. Фільтр за категорією (slug) з урахуванням вкладених підкатегорій
+            if ($request->filled('category')) {
+                $category = Category::where('slug', $request->input('category'))->with('children')->first();
 
+                if ($category) {
+                    // Збираємо ID поточної категорії та всіх її дочірніх підкатегорій
+                    $categoryIds = $category->children->pluck('id')->push($category->id);
+
+                    $query->whereIn('category_id', $categoryIds);
+                }
+            }
         // 2. Фільтр за брендами (масив id або slug)
         if ($request->filled('brands')) {
             $brands = is_array($request->input('brands'))

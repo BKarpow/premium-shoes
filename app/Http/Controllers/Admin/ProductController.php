@@ -74,7 +74,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:products,slug',
+            'slug' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'price' => 'required|numeric|min:0',
@@ -82,7 +82,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'is_active' => 'boolean',
             'images' => 'required|array|min:1',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:4096',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp',
             'variants' => 'required|array|min:1',
             'variants.*.size_id' => 'required|exists:sizes,id',
             'variants.*.stock' => 'required|integer|min:0',
@@ -92,7 +92,7 @@ class ProductController extends Controller
         // 1. Створення товару
         $product = Product::create([
             'title' => $validated['title'],
-            'slug' => Str::slug($validated['slug']),
+            'slug' => $validated['slug'] . '_'. Str::random(9),
             'category_id' => $validated['category_id'],
             'brand_id' => $validated['brand_id'],
             'price' => $validated['price'],
