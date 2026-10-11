@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Events\OrderCreated;
 
 class QuickOrderController extends Controller
 {
@@ -54,7 +55,8 @@ class QuickOrderController extends Controller
             ]);
 
             // 4. Списуємо 1 шт. зі складу
-            $variant->decrement('stock', 1);
+            // $variant->decrement('stock', 1);
+            event(new OrderCreated($order));
         });
 
         return back()->with('success', 'Дякуємо! Замовлення успішно прийняте. Менеджер зв’яжеться з Вами найближчим часом.');

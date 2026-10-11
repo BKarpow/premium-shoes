@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use App\Events\OrderCreated;
 
 class CheckoutController extends Controller
 {
@@ -135,10 +136,10 @@ class CheckoutController extends Controller
                 ]);
 
                 // Зменшуємо залишок товару на складі для конкретної варіації (SKU)
-                if (isset($item['variant_id'])) {
-                    \App\Models\ProductVariant::where('id', $item['variant_id'])
-                        ->decrement('stock', $item['quantity']);
-                }
+                // if (isset($item['variant_id'])) {
+                //     \App\Models\ProductVariant::where('id', $item['variant_id'])
+                //         ->decrement('stock', $item['quantity']);
+                // }
             }
 
             // Очищуємо кошик після успішного замовлення
@@ -147,7 +148,7 @@ class CheckoutController extends Controller
             DB::commit();
 
             // Тут можна додати відправку сповіщення в Telegram або на пошту адміністратору
-
+            event(new OrderCreated($order));
             return redirect()->route('checkout.success', ['order' => $order->id])
                 ->with('success', 'Замовлення успішно оформлено!');
         } catch (\Exception $e) {

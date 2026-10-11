@@ -53,6 +53,16 @@ class OrderController extends Controller
             'status' => 'required|in:new,processing,shipped,completed,cancelled',
             'payment_status' => 'required|in:pending,paid',
         ]);
+        $items = $order->items()->get();
+        // Зменшуємо кількість при зміні статусу на completed
+        if ($items && $validated['status'] == 'completed') {
+            foreach($items as $item) {
+                if (isset($item['product_variant_id'])) {
+                   \App\Models\ProductVariant::where('id', $item['product_variant_id'])
+                        ->decrement('stock', $item['quantity']);
+                }
+            }
+        }
 
         $order->update($validated);
 
