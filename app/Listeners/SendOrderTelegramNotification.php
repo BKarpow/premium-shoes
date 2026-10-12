@@ -33,12 +33,12 @@ class SendOrderTelegramNotification
                 return;
             }
 
-            $message = "📦 *Нове замовлення №{$order->id}!*\n\n"
-                 . "👤 Клієнт: {$order->first_name}\n"
-                 . "📞 Телефон: {$order->phone}\n"
-                 . "💰 Сума: *{$order->total_price} грн*\n"
-                 . "🚚 Доставка: {$order->shipping_type}\n"
-                 . "☑️ [Дивитися заказік]({$mainUrl}/admin/orders/{$order->id})";
+            $message = "📦 <b>Нове замовлення №{$order->id}!</b>\n\n"
+                     . "👤 <b>Клієнт:</b> {$order->first_name} {$order->last_name}\n"
+                     . "📞 <b>Телефон:</b> {$order->phone}\n"
+                     . "💰 <b>Сума:</b> {$order->total_price} грн\n"
+                     . "🚚 <b>Доставка:</b> {$order->shipping_type}\n\n"
+                     . "<a href=\"{$mainUrl}/admin/orders/{$order->id}\">Дивитися заказік</a>";
                  Log::info($message);
 
 
@@ -46,7 +46,7 @@ class SendOrderTelegramNotification
                 $response = Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
                     'chat_id' => $chatId,
                     'text' => $message,
-                    'parse_mode' => 'Markdown',
+                    'parse_mode' => 'HTML',
                 ]);
 
                 // 1. Перевірка статусу HTTP (успішний діапазон 200-299)
