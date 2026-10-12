@@ -41,12 +41,35 @@ class SendOrderTelegramNotification
                  . "☑️ [Дивитися заказік]({$mainUrl}/admin/orders/{$order->id})";
                  Log::info($message);
 
+
             try {
-                Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+                $response = Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
                     'chat_id' => $chatId,
                     'text' => $message,
                     'parse_mode' => 'Markdown',
                 ]);
+
+                // 1. Перевірка статусу HTTP (успішний діапазон 200-299)
+                if ($response->successful()) {
+                    // Запит виконано успішно (наприклад, статус 200 OK)
+                    $data = $response->json(); // Отримати відповідь у вигляді масиву
+
+                    // Telegram може повернути HTTP 200, але з помилкою в тілі (наприклад, невірний токен або заблокований бот)
+                    if (isset($data['ok']) && $data['ok'] === true) {
+                        // Повідомлення успішно надіслано
+
+                        Log::info("Запит успішний до телеграм \n" . var_dump($data, true));
+                    } else {
+                        Log::error("Помилка при запиті до телеграм \n" . var_dump($data, true));
+                    }
+                } else {
+                    // 2. Обробка помилок (статуси 4xx, 5xx)
+                    $statusCode = $response->status(); // Наприклад, 400 або 401
+                    $errorBody = $response->body();   // Сирий текст відповіді від сервера Telegram
+
+                    // Логування або обробка помилки
+                    Log::error("Telegram API Error: {$statusCode} - {$errorBody}");
+                }
             } catch (\Exception $e) {
                 Log::error('Помилка відправки в Telegram: ' . $e->getMessage());
             }
