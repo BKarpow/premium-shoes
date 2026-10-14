@@ -25,13 +25,11 @@ class ProductController extends Controller
             if ($request->filled('category')) {
                 $category = Category::where('slug', $request->input('category'))->with('children')->first();
 
-                if ($category) {
-                    // Збираємо ID поточної категорії та всіх її дочірніх підкатегорій
-                    $categoryIds = $category->children->pluck('id')->push($category->id);
+                 $categoryIds = $category->children->pluck('id')->push($category->id);
 
                     $query->whereIn('category_id', $categoryIds);
                 }
-            }
+
         // 2. Фільтр за брендами (масив id або slug)
         if ($request->filled('brands')) {
             $brands = is_array($request->input('brands'))

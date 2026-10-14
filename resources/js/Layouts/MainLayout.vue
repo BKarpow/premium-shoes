@@ -34,6 +34,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+<div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
     <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
         <!-- Шапка сайту (Header) -->
         <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md">
@@ -77,4 +78,5 @@ onUnmounted(() => {
             </div>
         </footer>
     </div>
+</div>
 </template>
