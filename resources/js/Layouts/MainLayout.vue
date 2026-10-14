@@ -41,17 +41,22 @@ onUnmounted(() => {
             <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
 
                 <!-- Ліва частина: Логотип + Кнопка Каталогу -->
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-6 flex-row">
                     <!-- Логотип -->
-                    <Link :href="route('catalog.index')" class="flex items-center gap-2 group">
-                        <span class="text-2xl">👟</span>
+                    <Link :href="route('catalog.index')"
+                    class="block items-center gap-2 group ">
+
                         <span class="text-lg font-black tracking-wider text-white uppercase group-hover:text-amber-500 transition-colors">
                             Premium
                         </span>
                     </Link>
+                    <div class="block ">
+                        <CatalogMenu />
+                    </div>
 
 
                 </div>
+
 
                 <!-- Права частина: Адаптивний кошик та Меню користувача -->
                 <div class="flex items-center gap-3">
@@ -60,9 +65,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Мобільна навігація для категорій під шапкою -->
-            <div class="ml-7 gap-3">
-                <CatalogMenu />
-            </div>
+
 
         </header>
 

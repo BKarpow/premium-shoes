@@ -9,6 +9,7 @@ import SizeSelector from '@/Components/Product/SizeSelector.vue'
 import OneClickModal from '@/Components/Cart/OneClickModal.vue'
 import CartDrawer from '@/Components/Cart/CartDrawer.vue';
 import MainLayout from '@/Layouts/MainLayout.vue';
+import Breadcrumbs from '@/Components/Breadcrumbs.vue'
 
 marked.setOptions({
   gfm: true,
@@ -103,6 +104,26 @@ const addToCart = () => {
     });
 };
 
+// Формуємо масив для хлібних крихт
+const breadcrumbs = computed(() => {
+  const items = [
+    { label: 'Головна', url: route('catalog.index') }
+  ]
+
+  // Якщо є категорія, додаємо її до крихт
+  if (props.product.category) {
+    items.push({
+      label: props.product.category.name,
+      url: route('catalog.index', { category: props.product.category.slug })
+    })
+  }
+
+  // Поточний товар (останній елемент без url)
+  items.push({ label: props.product.title })
+
+  return items
+})
+
 const openOneClick = () => {
   // Якщо розмір не обрано — показуємо SweetAlert2
   if (!selectedSize.value) {
@@ -123,14 +144,11 @@ const openOneClick = () => {
     <div class="max-w-7xl mx-auto space-y-12">
 
       <!-- Хлібні крихти та Іконка Кошика зверху -->
-      <div class="flex justify-between items-center">
-        <nav class="flex items-center gap-2 text-xs text-neutral-400">
-          <Link href="/" class="hover:text-amber-500 transition-colors">Головна</Link>
-          <span>/</span>
-          <span v-if="product.category" class="hover:text-amber-500 transition-colors">{{ product.category.name }}</span>
-          <span v-if="product.category">/</span>
-          <span class="text-neutral-200 truncate">{{ product.title }}</span>
-        </nav>
+      <div class="flex justify-between items-center w-full overflow-hidden">
+          <!-- 🟢 Використання нового компонента хлібних крихт -->
+                  <div class="w-full overflow-hidden">
+                    <Breadcrumbs :items="breadcrumbs" />
+                  </div>
 
         <!-- Кнопка Кошика у шапці -->
         <button
