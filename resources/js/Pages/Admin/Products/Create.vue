@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
+import Compressor from 'compressorjs';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { slugify, transliterate } from '@systemoperator/slug';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
@@ -34,29 +35,67 @@ watch(() => form.title, (newTitle) => {
     form.slug = slugify(newTitle);
 });
 
-// 2. Метод завантаження фотографій
+// 2. Обробка та стиснення фотографій через CompressorJS
+// 2. Обробка та стиснення фотографій через CompressorJS з виведенням логів у консоль
 const handleMultipleImages = (event) => {
     const selectedFiles = Array.from(event.target.files);
     if (!selectedFiles.length) return;
 
-    // Додаємо файли у форму
-    form.images = [...form.images, ...selectedFiles];
-
-    // Створюємо прев'ю
     selectedFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreviews.value.push({
-                file: file,
-                url: e.target.result
-            });
-        };
-        reader.readAsDataURL(file);
+        const originalSize = file.size; // Розмір початкового файлу у байтах
+
+        new Compressor(file, {
+            quality: 0.8,
+            maxWidth: 1920,
+            maxHeight: 1920,
+            success(result) {
+                const compressedSize = result.size; // Розмір стисненого файлу у байтах
+                const difference = originalSize - compressedSize; // Різниця в байтах
+                const percentSaved = ((difference / originalSize) * 100).toFixed(1); // Відсоток економії
+
+                // Допоміжна функція для гарного форматування розміру (байти -> КБ / МБ)
+                const formatBytes = (bytes) => {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                };
+
+                // Виводимо детальну інформацію у консоль (debug)
+                console.group(`📦 Стиснення зображення: ${file.name}`);
+                console.log(`Початковий розмір: ${formatBytes(originalSize)}`);
+                console.log(`Стиснений розмір:  ${formatBytes(compressedSize)}`);
+                console.log(`Зменшено на:       ${formatBytes(difference)} (${percentSaved}%)`);
+                console.groupEnd();
+
+                // Перетворюємо результат у новий об'єкт File
+                const compressedFile = new File([result], file.name, {
+                    type: result.type,
+                    lastModified: Date.now(),
+                });
+
+                // Додаємо до форми
+                form.images.push(compressedFile);
+
+                // Генеруємо прев'ю
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreviews.value.push({
+                        file: compressedFile,
+                        url: e.target.result
+                    });
+                };
+                reader.readAsDataURL(compressedFile);
+            },
+            error(err) {
+                console.error('Помилка стиснення зображення:', err.message);
+            },
+        });
     });
 
     event.target.value = '';
 };
-
 // 3. Видалення фото з попереднього перегляду
 const removeImage = (index) => {
     form.images.splice(index, 1);
