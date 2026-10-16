@@ -36,62 +36,113 @@ watch(() => form.title, (newTitle) => {
 });
 
 // 2. Обробка та стиснення фотографій через CompressorJS
-// 2. Обробка та стиснення фотографій через CompressorJS з виведенням логів у консоль
+// 2. Обробка, додавання ватермарки та стиснення фотографій
 const handleMultipleImages = (event) => {
     const selectedFiles = Array.from(event.target.files);
     if (!selectedFiles.length) return;
 
     selectedFiles.forEach((file) => {
-        const originalSize = file.size; // Розмір початкового файлу у байтах
+        const originalSize = file.size;
 
-        new Compressor(file, {
-            quality: 0.8,
-            maxWidth: 1920,
-            maxHeight: 1920,
-            success(result) {
-                const compressedSize = result.size; // Розмір стисненого файлу у байтах
-                const difference = originalSize - compressedSize; // Різниця в байтах
-                const percentSaved = ((difference / originalSize) * 100).toFixed(1); // Відсоток економії
+        // Крок А: Зчитуємо файл у зображення для накладання ватермарки через Canvas
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
 
-                // Допоміжна функція для гарного форматування розміру (байти -> КБ / МБ)
-                const formatBytes = (bytes) => {
-                    if (bytes === 0) return '0 Bytes';
-                    const k = 1024;
-                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                    const i = Math.floor(Math.log(bytes) / Math.log(k));
-                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-                };
+            img.onload = () => {
+                // Створюємо canvas для малювання
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
 
-                // Виводимо детальну інформацію у консоль (debug)
-                console.group(`📦 Стиснення зображення: ${file.name}`);
-                console.log(`Початковий розмір: ${formatBytes(originalSize)}`);
-                console.log(`Стиснений розмір:  ${formatBytes(compressedSize)}`);
-                console.log(`Зменшено на:       ${formatBytes(difference)} (${percentSaved}%)`);
-                console.groupEnd();
+                canvas.width = img.width;
+                canvas.height = img.height;
 
-                // Перетворюємо результат у новий об'єкт File
-                const compressedFile = new File([result], file.name, {
-                    type: result.type,
-                    lastModified: Date.now(),
-                });
+                // Малюємо оригінальне фото
+                ctx.drawImage(img, 0, 0);
 
-                // Додаємо до форми
-                form.images.push(compressedFile);
+                // Налаштування ватермарки (текст або логотип)
+                const watermarkText = 'Premium shoes'; // Змініть на назву вашого магазину
 
-                // Генеруємо прев'ю
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreviews.value.push({
-                        file: compressedFile,
-                        url: e.target.result
+                // Динамічний розмір шрифту залежно від ширини фото
+                const fontSize = Math.max(16, Math.floor(img.width / 25));
+                ctx.font = `bold ${fontSize}px Arial`;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; // Білий колір з прозорістю 60%
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+
+                // Відступ від країв
+                const padding = fontSize;
+                const x = canvas.width - padding;
+                const y = canvas.height - padding;
+
+                // Додаємо легку тінь для читабельності тексту на світлому фоні
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 4;
+                ctx.lineWidth = 2;
+
+                // Малюємо текст ватермарки у правому нижньому кутку
+                ctx.fillText(watermarkText, x, y);
+
+                // Перетворюємо canvas назад у Blob
+                canvas.toBlob((blob) => {
+                    if (!blob) return;
+
+                    const watermarkedFile = new File([blob], file.name, {
+                        type: file.type,
+                        lastModified: Date.now(),
                     });
-                };
-                reader.readAsDataURL(compressedFile);
-            },
-            error(err) {
-                console.error('Помилка стиснення зображення:', err.message);
-            },
-        });
+
+                    // Крок Б: Передаємо отримане фото з ватермаркою у CompressorJS для стиснення до ~1 МБ
+                    new Compressor(watermarkedFile, {
+                        quality: 0.8,
+                        maxWidth: 1920,
+                        maxHeight: 1920,
+                        success(result) {
+                            const compressedSize = result.size;
+                            const difference = originalSize - compressedSize;
+                            const percentSaved = ((difference / originalSize) * 100).toFixed(1);
+
+                            const formatBytes = (bytes) => {
+                                if (bytes === 0) return '0 Bytes';
+                                const k = 1024;
+                                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                            };
+
+                            // Виведення логів у консоль
+                            console.group(`📦 Стиснення та ватермарка: ${file.name}`);
+                            console.log(`Початковий розмір: ${formatBytes(originalSize)}`);
+                            console.log(`Фінальний розмір:  ${formatBytes(compressedSize)}`);
+                            console.log(`Зменшено на:       ${formatBytes(difference)} (${percentSaved}%)`);
+                            console.groupEnd();
+
+                            const finalFile = new File([result], file.name, {
+                                type: result.type,
+                                lastModified: Date.now(),
+                            });
+
+                            // Додаємо до форми та формуємо прев'ю
+                            form.images.push(finalFile);
+
+                            const previewReader = new FileReader();
+                            previewReader.onload = (pe) => {
+                                imagePreviews.value.push({
+                                    file: finalFile,
+                                    url: pe.target.result
+                                });
+                            };
+                            previewReader.readAsDataURL(finalFile);
+                        },
+                        error(err) {
+                            console.error('Помилка стиснення:', err.message);
+                        },
+                    });
+                }, file.type, 0.95);
+            };
+        };
+        reader.readAsDataURL(file);
     });
 
     event.target.value = '';
