@@ -24,7 +24,7 @@ defineProps({
           v-if="product.old_price"
           class="absolute top-3 left-3 bg-red-950/80 border border-red-500/30 text-red-400 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded backdrop-blur-md"
         >
-          Sale
+          Знижка
         </span>
 
         <Link
@@ -52,7 +52,7 @@ defineProps({
         </div>
 
         <!-- Розміри -->
-        <div class="flex flex-wrap gap-1 mt-2">
+        <!-- <div class="flex flex-wrap gap-1 mt-2">
           <span
             v-for="variant in product.variants"
             :key="variant.id"
@@ -60,7 +60,7 @@ defineProps({
           >
             {{ variant.size?.value }}
           </span>
-        </div>
+        </div> -->
       </div>
     </div>
 

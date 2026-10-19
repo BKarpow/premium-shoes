@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use App\Services\CartService;
 use App\Models\Category;
+use App\Services\CategoryToolTrait;
 
 class HandleInertiaRequests extends Middleware
 {
+    use CategoryToolTrait;
     /**
      * The root template that is loaded on the first page visit.
      *
@@ -45,9 +47,7 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
                     'cart' => fn () => $cartService->getCartDetails(),
-                    'categories' => fn () => Category::whereNull('parent_id')
-                                ->with('children')
-                                ->get(),
+                    'categories' => $this->getCategories(),
                     'flash' => [
                         'success' => fn () => $request->session()->get('success'),
                         'error' => fn () => $request->session()->get('error'),

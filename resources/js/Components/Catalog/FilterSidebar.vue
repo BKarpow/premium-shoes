@@ -1,5 +1,6 @@
 <script setup>
-defineProps({
+import CategorySelect from '@/Components/Admin/CategorySelect.vue';
+const props = defineProps({
   categories: Array,
   brands: Array,
   sizes: Array,
@@ -45,20 +46,15 @@ const toggleSize = (sizeId, currentSizes) => {
     <!-- Категорії -->
     <div>
       <h3 class="font-semibold text-xs uppercase tracking-wider text-neutral-400 mb-3">Категорія</h3>
-      <select
-        :value="selectedCategory"
-        @change="$emit('update:selectedCategory', $event.target.value)"
-        class="w-full bg-neutral-950 border border-neutral-800 rounded-lg text-xs text-neutral-200 focus:border-amber-500 focus:ring-amber-500 py-2.5 px-3"
-      >
-        <option value="">Усі категорії</option>
-        <option v-for="cat in categories" :key="cat.id" :value="cat.slug">
-          {{ cat.name }}
-        </option>
-      </select>
+      <CategorySelect
+      :categories="categories"
+      :model-value="selectedCategory"
+        @update:model-value="$emit('update:selectedCategory', $event)"
+        />
     </div>
 
     <!-- Бренди -->
-    <div>
+    <!-- <div>
       <h3 class="font-semibold text-xs uppercase tracking-wider text-neutral-400 mb-3">Бренд</h3>
       <div class="space-y-2.5 max-h-44 overflow-y-auto pr-2 custom-scrollbar">
         <label
@@ -82,7 +78,7 @@ const toggleSize = (sizeId, currentSizes) => {
           <span class="group-hover:translate-x-0.5 transition-transform duration-150">{{ brand.name }}</span>
         </label>
       </div>
-    </div>
+    </div> -->
 
     <!-- Розміри -->
     <div>

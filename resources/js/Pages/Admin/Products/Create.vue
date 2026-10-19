@@ -256,7 +256,7 @@ const submit = () => {
                             <span v-if="form.errors.title" class="text-xs text-rose-500 mt-1 block">{{ form.errors.title }}</span>
                         </div>
 
-                        <div>
+                        <div class="hidden">
                             <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Slug (URL) *</label>
                             <input
                                 v-model="form.slug"

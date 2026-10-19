@@ -154,4 +154,11 @@ Route::middleware(['auth','role:admin|manager'])->prefix('admin')->name('admin.'
 });
 
 
+use App\Http\Controllers\Admin\SizeController;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('sizes', SizeController::class)->except(['create', 'edit']);
+});
+
+
 require __DIR__.'/auth.php';

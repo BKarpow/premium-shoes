@@ -34,8 +34,10 @@ const navLinks = [
     { name: 'Товари', routeName: 'admin.products.index', icon: '👟' },
     { name: 'Категорії', routeName: 'admin.categories.index', icon: '📁' },
     { name: 'Бренди', routeName: 'admin.brands.index', icon: '🏷️' },
+    { name: 'Розміри', routeName: 'admin.sizes.index', icon: '📏' },
     { name: 'Замовлення', routeName: 'admin.orders.index', icon: '📦' },
     { name: 'Користувачі', routeName: 'admin.users.index', icon: '👥' },
+
 ];
 </script>
 

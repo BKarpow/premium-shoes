@@ -13,35 +13,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\CategoryToolTrait;
 
 class ProductController extends Controller
 {
-    private function getCategories(): array
-    {
-        $parentCategories = Category::whereNull('parent_id')->with('children')
-        ->orderBy('name')->get();
-
-            // Формуємо плоский список, але в правильному ієрархічному порядку
-            $categories = [];
-            foreach ($parentCategories as $parent) {
-                $categories[] = [
-                    'id' => $parent->id,
-                    'name' => $parent->name,
-                    'is_parent' => true,
-                ];
-
-                if ($parent->children) {
-                    foreach ($parent->children as $child) {
-                        $categories[] = [
-                            'id' => $child->id,
-                            'name' => '— ' . $child->name, // Візуальний відступ для дочірньої
-                            'is_parent' => false,
-                        ];
-                    }
-                }
-            }
-            return $categories;
-    }
+    use CategoryToolTrait;
 
     public function index(Request $request): Response
     {
@@ -84,7 +60,7 @@ class ProductController extends Controller
             'images' => 'required|array|min:1',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp',
             'variants' => 'required|array|min:1',
-            'variants.*.size_id' => 'required|exists:sizes,id',
+            'variantsyh8u9.*.size_id' => 'required|exists:sizes,id',
             'variants.*.stock' => 'required|integer|min:0',
             'variants.*.sku' => 'nullable|string|max:100',
         ]);

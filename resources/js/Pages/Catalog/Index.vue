@@ -91,7 +91,7 @@ watch([selectedCategory, sortBy], () => {
             Каталог <span class="text-amber-500">Взуття</span>
           </h1>
           <p class="text-[11px] text-neutral-400 mt-1 uppercase tracking-widest">
-            Преміальна колекція взуття
+            Преміальна колекція шкіряного Харківського взуття
           </p>
         </div>
 

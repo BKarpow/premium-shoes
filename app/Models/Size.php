@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Size extends Model
 {
     use HasFactory;
+    protected $fillable = ['value', 'length_cm', 'sort_order'];
     protected $guarded = [];
 
     public function variants(): HasMany

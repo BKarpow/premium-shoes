@@ -9,9 +9,11 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
+use App\Services\CategoryToolTrait;
 
 class ProductController extends Controller
 {
+    use CategoryToolTrait;
     /**
      * Головна сторінка каталогу взуття
      */
@@ -23,9 +25,10 @@ class ProductController extends Controller
 
             // 1. Фільтр за категорією (slug) з урахуванням вкладених підкатегорій
             if ($request->filled('category')) {
-                $category = Category::where('slug', $request->input('category'))->with('children')->first();
+                $category = Category::where('id', (int)$request->input('category'))
+                ->with('children')->first();
 
-                 $categoryIds = $category->children->pluck('id')->push($category->id);
+                 $categoryIds = $category->children->pluck('id')->push($category->id) ?? [$category->id];
 
                     $query->whereIn('category_id', $categoryIds);
                 }
